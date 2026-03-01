@@ -24,13 +24,20 @@ const NovelOutlinePopover = ({
   } = useData();
   
   const [showAddButtonsInOutline, setShowAddButtonsInOutline] = useState(() => {
-    const storedValue = localStorage.getItem('plotbunni_writeview_showAddButtons');
-    return storedValue ? JSON.parse(storedValue) : false;
+    const storedValue = localStorage.getItem('MANUSCRIPT_ORACLE_writeview_showAddButtons');
+        // Migration: check for old plotbunni key
+        if (!storedValue) {
+                const oldValue = localStorage.getItem('plotbunni_writeview_showAddButtons');
+                if (oldValue) {
+                          localStorage.setItem('MANUSCRIPT_ORACLE_writeview_showAddButtons', oldValue);
+                          storedValue = oldValue;
+                        }
+              }return storedValue ? JSON.parse(storedValue) : false;
   });
   const [showReorderControls, setShowReorderControls] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('plotbunni_writeview_showAddButtons', JSON.stringify(showAddButtonsInOutline));
+        localStorage.setItem('MANUSCRIPT_ORACLE_writeview_showAddButtons', JSON.stringify(showAddButtonsInOutline));
   }, [showAddButtonsInOutline]);
 
   // Placeholder functions, assuming they will be provided by DataContext
