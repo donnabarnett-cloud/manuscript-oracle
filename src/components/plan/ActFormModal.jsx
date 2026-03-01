@@ -13,14 +13,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useData } from '@/context/DataContext';
-import ConfirmModal from '@/components/ui/ConfirmModal'; // Import ConfirmModal
-import { Trash2 } from 'lucide-react'; // Import Trash2 icon
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { Trash2 } from 'lucide-react';
 
 const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
   const { t } = useTranslation();
-  const { addAct, updateAct, deleteAct } = useData(); // Add deleteAct
+  const { addAct, updateAct, deleteAct } = useData();
   const [name, setName] = useState('');
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false); // State for confirm modal
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const isEditing = Boolean(actToEdit);
 
   useEffect(() => {
@@ -49,57 +49,76 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
     if (actToEdit) {
       deleteAct(actToEdit.id);
       resetForm();
-      onOpenChange(false); // Close main modal
-      setIsConfirmDeleteOpen(false); // Close confirm modal
+      onOpenChange(false);
+      setIsConfirmDeleteOpen(false);
     }
   };
 
   useEffect(() => {
     if (!open) {
       resetForm();
-      setIsConfirmDeleteOpen(false); // Ensure confirm modal is closed when main modal closes
+      setIsConfirmDeleteOpen(false);
     }
   }, [open]);
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md overflow-y-auto">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditing ? t('act_form_modal_title_edit') : t('act_form_modal_title_create')}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? 'Edit Act' : 'Add a New Act'}
+            </DialogTitle>
             <DialogDescription>
-              {isEditing ? t('act_form_modal_desc_edit') : t('act_form_modal_desc_create')}
+              {isEditing
+                ? 'Update the name of this act.'
+                : 'Acts are the major sections of your story (e.g. Act 1: The Beginning).'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="act-name" className="text-right">{t('act_form_modal_label_name')}</Label>
-              <Input id="act-name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" placeholder={t('act_form_modal_placeholder_name')} />
+              <Label htmlFor="act-name" className="text-right">Act Name</Label>
+              <Input
+                id="act-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="col-span-3"
+                placeholder="e.g. Act 1: The Beginning"
+                onKeyDown={(e) => e.key === 'Enter' && name.trim() && handleSubmit()}
+              />
             </div>
           </div>
           <DialogFooter className="flex justify-between w-full">
             <div className="flex items-center gap-2">
               {isEditing && (
-                <Button type="button" variant="destructive" size="icon" onClick={() => setIsConfirmDeleteOpen(true)} title={t('tooltip_delete_act')}>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => setIsConfirmDeleteOpen(true)}
+                  title="Delete this act"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}
-              <div className="flex-grow"></div>
-              <DialogClose asChild><Button type="button" variant="outline">{t('cancel')}</Button></DialogClose>
+            </div>
+            <div className="flex items-center gap-2">
+              <DialogClose asChild>
+                <Button type="button" variant="outline">{t('cancel')}</Button>
+              </DialogClose>
               <Button type="submit" onClick={handleSubmit} disabled={!name.trim()}>
-                {isEditing ? t('save_changes_button') : t('act_form_modal_button_create')}
+                {isEditing ? t('save_changes_button') : 'Create Act'}
               </Button>
             </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {actToEdit && (
         <ConfirmModal
           open={isConfirmDeleteOpen}
           onOpenChange={setIsConfirmDeleteOpen}
-          title={t('act_form_modal_confirm_delete_title')}
-          description={t('act_form_modal_confirm_delete_description', { actName: actToEdit.name })}
+          title="Delete this Act?"
+          description={`Are you sure you want to permanently delete "${actToEdit.name}" and everything inside it? This cannot be undone.`}
           onConfirm={handleDeleteAct}
         />
       )}
