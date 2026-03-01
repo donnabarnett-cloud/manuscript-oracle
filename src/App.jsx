@@ -12,13 +12,13 @@ import PlanView from '@/components/plan/PlanView.jsx';
 import SettingsView from '@/components/settings/SettingsView.jsx';
 import WriteView from '@/components/write/WriteView.jsx';
 import { Link } from 'react-router-dom';
-import { PanelLeftClose, PanelLeftOpen, Rabbit, Home, Clipboard, Edit, Settings, BookOpen, Lightbulb, Sun, Moon, Text, Sparkles, Users } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Rabbit, Home, Clipboard, Edit, Settings, BookOpen, Lightbulb, Sun, Moon, Text, Sparkles, Users, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import FontSettingsControl from '@/components/settings/FontSettingsControl';
 import { BetaReaderModal } from '@/components/ai/BetaReaderModal';
 import { OracleAnalysisModal } from '@/components/ai/OracleAnalysisModal';
-
+import { DocumentImportExportModal } from '@/components/ai/DocumentImportExportModal';
 function App({ novelId }) {
   const { t } = useTranslation();
   const { isDataLoaded, currentNovelId } = useData();
@@ -30,17 +30,16 @@ function App({ novelId }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isBetaReaderOpen, setIsBetaReaderOpen] = useState(false);
   const [isOracleOpen, setIsOracleOpen] = useState(false);
+  const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
   
   const sidebarPanelRef = useRef(null);
   const { themeMode, activeOsTheme, setThemeMode } = useSettings();
-
   const toggleSidebar = () => {
     if (sidebarPanelRef.current) {
       if (isSidebarCollapsed) sidebarPanelRef.current.expand();
       else sidebarPanelRef.current.collapse();
     }
   };
-
   useEffect(() => {
     if (novelId) {
       const fetchNovelName = async () => {
@@ -57,10 +56,8 @@ function App({ novelId }) {
       fetchNovelName();
     }
   }, [novelId, t]);
-
   const effectiveTheme = themeMode === 'system' ? activeOsTheme : themeMode;
   const handleThemeToggle = () => setThemeMode(effectiveTheme === 'light' ? 'dark' : 'light');
-
   const handleSwitchToWriteTab = (chapterId, sceneId = null) => {
     setActiveMainTab('write');
     setTargetChapterId(chapterId);
@@ -70,7 +67,6 @@ function App({ novelId }) {
       setTargetSceneId(null);
     }, 100);
   };
-
   if (!isDataLoaded || currentNovelId !== novelId) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-background">
@@ -79,7 +75,6 @@ function App({ novelId }) {
       </div>
     );
   }
-
   const renderRightPaneContent = () => {
     switch (activeMainTab) {
       case "write": return <WriteView targetChapterId={targetChapterId} targetSceneId={targetSceneId} />;
@@ -88,7 +83,6 @@ function App({ novelId }) {
       default: return <PlanView onSwitchToWriteTab={handleSwitchToWriteTab} novelId={novelId} />;
     }
   };
-
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between p-3 border-b bg-background shadow-sm print:hidden">
@@ -130,6 +124,9 @@ function App({ novelId }) {
           <Button variant="outline" size="sm" onClick={() => setIsBetaReaderOpen(true)} className="hidden md:flex gap-2">
             <Users className="h-4 w-4" /> Beta Readers
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setIsDocumentModalOpen(true)} className="hidden md:flex gap-2" title="Import/Export manuscript as Word or PDF">
+            <FileText className="h-4 w-4" /> Import/Export
+          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="hidden md:inline-flex">
@@ -145,7 +142,6 @@ function App({ novelId }) {
           </Button>
         </div>
       </header>
-
       <div className="flex flex-grow border-t overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel 
@@ -186,11 +182,10 @@ function App({ novelId }) {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-
       <BetaReaderModal isOpen={isBetaReaderOpen} onOpenChange={setIsBetaReaderOpen} />
       <OracleAnalysisModal isOpen={isOracleOpen} onOpenChange={setIsOracleOpen} />
+      <DocumentImportExportModal isOpen={isDocumentModalOpen} onOpenChange={setIsDocumentModalOpen} />
     </div>
   );
 }
-
 export default App;
