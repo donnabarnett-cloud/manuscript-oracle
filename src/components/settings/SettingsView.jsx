@@ -15,6 +15,7 @@ import EndpointProfileFormModal from './EndpointProfileFormModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { ThemeEditor } from './ThemeEditor';
 import FontSettingsControl from './FontSettingsControl'; // Import the new component
+import OracleSettingsSection from './OracleSettingsSection'; // Import Oracle settings
 
 const SettingsView = () => {
   const { t } = useTranslation();
@@ -141,6 +142,8 @@ const SettingsView = () => {
                     />
                   </div>
                 </CardContent>
+                        <Separator />
+        <OracleSettingsSection />
               </Card>
             </div>
           </TabsContent>
