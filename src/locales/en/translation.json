@@ -366,9 +366,7 @@
   "write_view_ai_novel_writer_tooltip": "Open AI Novel Writer",
   "write_view_ai_context_error_base_data": "Story data not available for AI context.",
   "write_view_ai_context_error_no_profile": "No active AI profile. Please configure one in Settings.",
-  "write_view_ai_context_error_no_chapter": "Could not find the chapter for this scene."
-}
-,
+  "write_view_ai_context_error_no_chapter": "Could not find the chapter for this scene.",
   "ai_suggestion_modal_dialog_title": "AI Suggestion: {{fieldLabel}}",
   "ai_suggestion_modal_tab_query": "Query",
   "ai_suggestion_modal_tab_suggestion": "Suggestion",
@@ -397,3 +395,5 @@
   "endpoint_profile_form_button_reset_custom": "Reset Custom Fields",
   "endpoint_profile_form_button_cancel": "Cancel",
   "endpoint_profile_form_button_save": "Save Changes"
+
+}
