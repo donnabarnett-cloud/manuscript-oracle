@@ -7,14 +7,16 @@ import { getNovelData } from './indexedDb';
 
 export const getOracleSettings = () => {
   const saved = localStorage.getItem('MANUSCRIPT_ORACLE_Settings');
-  return saved ? JSON.parse(saved) : {
-    apiKey: '',
-    defaultModel: 'arcee-ai/trinity-large-preview',
+  if (!saved) {
+    return { apiKey: '', defaultModel: 'arcee-ai/trinity-large-preview', temperature: 0.7 };
+  }
+  const parsed = JSON.parse(saved);
+  const firstProfile = parsed.endpointProfiles?.[0] || {};
+  return {
+    apiKey: firstProfile.apiToken || '',
+    defaultModel: firstProfile.modelName || 'arcee-ai/trinity-large-preview',
     temperature: 0.7,
-  };
-};
-
-export const betaReaders = [
+  export const betaReaders = [
   { id: 'reader_1', name: 'The Emotional Heart', persona: 'Focuses on character chemistry, emotional stakes, and "the feels".' },
   { id: 'reader_2', name: 'The Plot Hound', persona: 'Obsessed with logic, pacing, and spotting plot holes.' },
   { id: 'reader_3', name: 'The Style Critic', persona: 'Focuses on prose quality, metaphors, and flow.' }
