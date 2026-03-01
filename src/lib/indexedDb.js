@@ -229,3 +229,38 @@ export async function deleteNovel(novelId) {
   metadataList = metadataList.filter(meta => meta.id !== novelId);
   await _idbSet(NOVELS_METADATA_KEY, metadataList);
 }
+
+/**
+ * Alias for getNovelData - retrieves a novel by ID.
+ * @param {string} novelId - The ID of the novel.
+ * @returns {Promise<Object|undefined>}
+ */
+export async function getNovelById(novelId) {
+  return getNovelData(novelId);
+}
+
+/**
+ * Updates the prose/content of a specific scene within a chapter.
+ * @param {string} novelId - The ID of the novel.
+ * @param {string} sceneId - The ID of the scene to update.
+ * @param {string} newProse - The new content/prose for the scene.
+ * @returns {Promise<void>}
+ */
+export async function updateChapterProse(novelId, sceneId, newProse) {
+  if (!novelId || !sceneId) {
+    console.error('updateChapterProse: novelId and sceneId are required.');
+    return;
+  }
+  const novelData = await getNovelData(novelId);
+  if (!novelData) {
+    console.error(`updateChapterProse: Novel not found: ${novelId}`);
+    return;
+  }
+  if (!novelData.scenes || !novelData.scenes[sceneId]) {
+    console.error(`updateChapterProse: Scene not found: ${sceneId}`);
+    return;
+  }
+  novelData.scenes[sceneId].content = newProse;
+  novelData.scenes[sceneId].last_modified_date = Date.now();
+  await saveNovelData(novelId, novelData);
+}
