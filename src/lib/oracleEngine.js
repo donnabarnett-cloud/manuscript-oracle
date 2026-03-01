@@ -6,7 +6,7 @@
 import { getNovelData } from './indexedDb';
 
 export const getOracleSettings = () => {
-  const saved = localStorage.getItem('manuscript_oracle_settings');
+  const saved = localStorage.getItem('MANUSCRIPT_ORACLE_Settings');
   return saved ? JSON.parse(saved) : {
     apiKey: '',
     defaultModel: 'arcee-ai/trinity-large-preview',
