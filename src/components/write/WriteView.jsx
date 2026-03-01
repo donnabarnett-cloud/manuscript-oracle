@@ -303,7 +303,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                     novelDataTokens={aiSceneContext.estimatedTokens}
                     novelDataLevel={aiSceneContext.level}
                     onAccept={handleAcceptAISuggestion}
-                    fieldLabel={`Writing Suggestion: ${sceneName || 'Scene'}`, { sceneName: sceneName || "Unnamed Scene"})}
+                                        fieldLabel={`Writing Suggestion: ${sceneName || 'Unnamed Scene'}`}
                     taskKeyForProfile={TASK_KEYS.SCENE_TEXT}
                 />
             )}
