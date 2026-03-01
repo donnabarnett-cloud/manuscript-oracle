@@ -16,12 +16,22 @@ const RECOMMENDED_MODELS = [
   { value: 'deepseek/deepseek-chat-v3-0324:free', label: 'DeepSeek V3 (Free)' },
   { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet (Paid)' },
   { value: 'openai/gpt-4o-mini', label: 'GPT-4o Mini (Paid)' },
+const RECOMMENDED_MODELS = [
+  { value: 'meta-llama/llama-4-maverick:free', label: 'Llama 4 Maverick (Free) ⭐ Best' },
+  { value: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B (Free)' },
+  { value: 'mistralai/mistral-small-3.1-24b-instruct:free', label: 'Mistral Small 3.1 (Free)' },
+  { value: 'qwen/qwen3-coder-480b:free', label: 'Qwen3 Coder 480B (Free)' },
+  { value: 'arcee-ai/trinity-large-preview:free', label: 'Arcee Trinity Large (Free)' },
+  { value: 'google/gemma-3-27b-it:free', label: 'Google Gemma 3 27B (Free)' },
+  { value: 'deepseek/deepseek-chat-v3-0324:free', label: 'DeepSeek V3 (Free)' },
+  { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet (Paid)' },
+  { value: 'openai/gpt-4o-mini', label: 'GPT-4o Mini (Paid)' },
 ];
 
 export default function OracleSettingsSection() {
   const [settings, setSettings] = useState({
     apiKey: '',
-    defaultModel: 'arcee-ai/trinity-large-preview',
+        defaultModel: 'meta-llama/llama-4-maverick:free',
     temperature: 0.7,
   });
   const [showKey, setShowKey] = useState(false);
