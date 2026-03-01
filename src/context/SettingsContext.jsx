@@ -8,7 +8,7 @@ import {
   darkThemePresets
 } from '../data/themePresets.js';
 
-const APP_ID = "PLOTBUNNI";
+const APP_ID = "MANUSCRIPT_ORACLE";
 const SETTINGS_STORAGE_KEY = `${APP_ID}_Settings`;
 
 const DEFAULT_ENDPOINT_VALUES = {
