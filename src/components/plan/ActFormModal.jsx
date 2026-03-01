@@ -16,6 +16,8 @@ import { useData } from '@/context/DataContext';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { Trash2 } from 'lucide-react';
 
+// ActFormModal — lets writers create or rename a story Act.
+// An Act is a major section of your novel (e.g. Act 1: Setup, Act 2: Confrontation).
 const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
   const { t } = useTranslation();
   const { addAct, updateAct, deleteAct } = useData();
@@ -25,11 +27,7 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
 
   useEffect(() => {
     if (open) {
-      if (isEditing && actToEdit) {
-        setName(actToEdit.name || '');
-      } else {
-        setName('');
-      }
+      setName(isEditing && actToEdit ? actToEdit.name || '' : '');
     }
   }, [actToEdit, isEditing, open]);
 
@@ -67,17 +65,17 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? 'Edit Act' : 'Add a New Act'}
+              {isEditing ? 'Rename Act' : 'Add a New Act'}
             </DialogTitle>
             <DialogDescription>
               {isEditing
-                ? 'Update the name of this act.'
-                : 'Acts are the major sections of your story (e.g. Act 1: The Beginning).'}
+                ? `Rename "${actToEdit?.name}" — this updates the act title across your whole story.`
+                : 'Acts are the major story sections (e.g. Act 1: The Call to Adventure). You can add chapters inside each act.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="act-name" className="text-right">Act Name</Label>
+              <Label htmlFor="act-name" className="text-right">Act Title</Label>
               <Input
                 id="act-name"
                 value={name}
@@ -85,6 +83,7 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
                 className="col-span-3"
                 placeholder="e.g. Act 1: The Beginning"
                 onKeyDown={(e) => e.key === 'Enter' && name.trim() && handleSubmit()}
+                autoFocus
               />
             </div>
           </div>
@@ -96,7 +95,7 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
                   variant="destructive"
                   size="icon"
                   onClick={() => setIsConfirmDeleteOpen(true)}
-                  title="Delete this act"
+                  title="Delete this act and all its chapters"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -104,10 +103,10 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
             </div>
             <div className="flex items-center gap-2">
               <DialogClose asChild>
-                <Button type="button" variant="outline">{t('cancel')}</Button>
+                <Button type="button" variant="outline">Cancel</Button>
               </DialogClose>
               <Button type="submit" onClick={handleSubmit} disabled={!name.trim()}>
-                {isEditing ? t('save_changes_button') : 'Create Act'}
+                {isEditing ? 'Save Changes' : 'Create Act'}
               </Button>
             </div>
           </DialogFooter>
@@ -118,7 +117,7 @@ const ActFormModal = ({ open, onOpenChange, actToEdit }) => {
           open={isConfirmDeleteOpen}
           onOpenChange={setIsConfirmDeleteOpen}
           title="Delete this Act?"
-          description={`Are you sure you want to permanently delete "${actToEdit.name}" and everything inside it? This cannot be undone.`}
+          description={`This will permanently delete "${actToEdit.name}" and all the chapters and scenes inside it. This cannot be undone.`}
           onConfirm={handleDeleteAct}
         />
       )}
