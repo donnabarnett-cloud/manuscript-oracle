@@ -159,5 +159,37 @@ function parseOracleResponse(response) {
     return JSON.parse(response);
   } catch {
     return { issues: [], suggestedFixes: [], rawResponse: response };
+
+/**
+ * Alias for runFullOracleAnalysis - analyzes a whole novel by ID.
+ * @param {string} novelId - The ID of the novel.
+ * @returns {Promise<string>} Analysis result as text.
+ */
+export async function runWholeBookAnalysis(novelId) {
+  const manuscript = await getFullManuscriptContent(novelId);
+  if (!manuscript) return 'No manuscript content found. Please add content to your scenes first.';
+
+  const settings = getOracleSettings();
+  if (!settings.apiKey) return 'No API key configured. Please add your OpenRouter API key in Settings.';
+
+  const prompt = `You are a Lead Editor at a Major Publishing House.
+Analyze this full manuscript and identify:
+1. Plot contradictions across chapters.
+2. Character arc drifts.
+3. Pacing issues.
+4. POV consistency problems.
+5. Overall structural strengths and weaknesses.
+
+MANUSCRIPT:
+${manuscript.substring(0, 8000)}
+
+Provide a comprehensive editorial report.`;
+
+  try {
+    return await callOpenRouter(prompt, settings);
+  } catch (error) {
+    return `Analysis failed: ${error.message}`;
+  }
+}
   }
 }
