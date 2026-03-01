@@ -326,7 +326,7 @@ const PlanView = ({ onSwitchToWriteTab, novelId }) => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isAIChatModalOpen, setIsAIChatModalOpen] = useState(false);
 
-  const getChatStorageKey = (type, id) => `plotbunni_chat_${type}_${id}`;
+  const getChatStorageKey = (type, id) => `MANUSCRIPT_ORACLE_chat_${type}_${id}`;
   const getOldChatStorageKey = (type, id) => `plothare_chat_${type}_${id}`;
 
   const [chatMessages, setChatMessages] = useState(() => {
