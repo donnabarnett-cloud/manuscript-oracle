@@ -68,17 +68,17 @@ const NovelOutlinePopover = ({
             variant="ghost"
             size="icon"
             onClick={() => setShowReorderControls(!showReorderControls)}
-            title={t('write_view_outline_popover_toggle_reorder_tooltip')}
+            title={"Toggle reorder controls"}
             className="h-7 w-7"
           >
             <ChevronsUpDown className={`h-5 w-5 ${showReorderControls ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`} />
           </Button>
-          <div className="text-center flex-grow text-lg font-semibold">{t('write_view_outline_popover_title')}</div>
+          <div className="text-center flex-grow text-lg font-semibold">{"Story Outline"}</div>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setShowAddButtonsInOutline(!showAddButtonsInOutline)}
-            title={t('write_view_outline_popover_toggle_add_buttons_tooltip')}
+            title={"Show add buttons"}
             className="h-7 w-7"
           >
             <PlusCircle className={`h-5 w-5 ${showAddButtonsInOutline ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`} />
@@ -104,21 +104,21 @@ const NovelOutlinePopover = ({
                             onSelect={() => handleMoveAct(act.id, 'up')} 
                             disabled={!safeCanMoveActUp(act.id)}
                           >
-                            {t('write_view_outline_popover_move_up')}
+                            {"Move up"}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onSelect={() => handleMoveAct(act.id, 'down')}
                             disabled={!safeCanMoveActDown(act.id)}
                           >
-                            {t('write_view_outline_popover_move_down')}
+                            {"Move down"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
-                    <h3 className="font-semibold text-sm text-foreground flex-grow truncate" title={act.name || t('ai_novel_writer_unnamed_act')}>{act.name || t('ai_novel_writer_unnamed_act')}</h3>
+                    <h3 className="font-semibold text-sm text-foreground flex-grow truncate" title={act.name || "Unnamed Act"}>{act.name || "Unnamed Act"}</h3>
                   </div>
                   {showAddButtonsInOutline && (
-                    <Button variant="ghost" size="icon" className="h-6 w-6 p-0 flex-shrink-0" onClick={() => onAddChapter(act.id)} title={t('write_view_outline_popover_add_chapter_tooltip')}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 p-0 flex-shrink-0" onClick={() => onAddChapter(act.id)} title={"Add chapter"}>
                       <PlusCircle className="h-4 w-4" />
                     </Button>
                   )}
@@ -142,21 +142,21 @@ const NovelOutlinePopover = ({
                                   onSelect={() => handleMoveChapter(chapter.id, act.id, 'up')}
                                   disabled={!safeCanMoveChapterUp(chapter.id, act.id)}
                                 >
-                                  {t('write_view_outline_popover_move_up')}
+                                  {"Move up"}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                   onSelect={() => handleMoveChapter(chapter.id, act.id, 'down')}
                                   disabled={!safeCanMoveChapterDown(chapter.id, act.id)}
                                 >
-                                  {t('write_view_outline_popover_move_down')}
+                                  {"Move down"}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           )}
-                          <h4 className="font-medium text-xs text-muted-foreground flex-grow truncate" title={chapter.name || t('ai_novel_writer_unnamed_chapter')}>{chapter.name || t('ai_novel_writer_unnamed_chapter')}</h4>
+                          <h4 className="font-medium text-xs text-muted-foreground flex-grow truncate" title={chapter.name || "Unnamed Chapter"}>{chapter.name || "Unnamed Chapter"}</h4>
                         </div>
                         {showAddButtonsInOutline && (
-                          <Button variant="ghost" size="icon" className="h-6 w-6 p-0 flex-shrink-0" onClick={() => onAddScene(chapter.id)} title={t('write_view_outline_popover_add_scene_tooltip')}>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 p-0 flex-shrink-0" onClick={() => onAddScene(chapter.id)} title={"Add scene"}>
                             <PlusCircle className="h-4 w-4" />
                           </Button>
                         )}
@@ -179,13 +179,13 @@ const NovelOutlinePopover = ({
                                       onSelect={() => handleMoveScene(scene.id, chapter.id, act.id, 'up')}
                                       disabled={!safeCanMoveSceneUp(scene.id, chapter.id, act.id)}
                                     >
-                                      {t('write_view_outline_popover_move_up')}
+                                      {"Move up"}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
                                       onSelect={() => handleMoveScene(scene.id, chapter.id, act.id, 'down')}
                                       disabled={!safeCanMoveSceneDown(scene.id, chapter.id, act.id)}
                                     >
-                                      {t('write_view_outline_popover_move_down')}
+                                      {"Move down"}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -194,28 +194,28 @@ const NovelOutlinePopover = ({
                                 variant="ghost"
                                 className="flex-grow justify-start h-auto py-1 px-2 text-xs font-normal text-left truncate min-w-0"
                                 onClick={() => onSceneSelect(sceneId)}
-                                title={scene.name || t('ai_novel_writer_unnamed_scene')}
+                                title={scene.name || "Unnamed Scene"}
                               >
-                                {scene.name || t('ai_novel_writer_unnamed_scene')}
+                                {scene.name || "Unnamed Scene"}
                               </Button>
                             </div>
                           </div>
                         );
                       })}
                       {(!chapter.sceneOrder || chapter.sceneOrder.length === 0) && (
-                        <p className="ml-2 text-xs text-muted-foreground italic">{t('write_view_outline_popover_no_scenes')}</p>
+                        <p className="ml-2 text-xs text-muted-foreground italic">{"No scenes yet"}</p>
                       )}
                     </div>
                   );
                 })}
                 {(!act.chapterOrder || act.chapterOrder.length === 0) && (
-                  <p className="ml-3 text-xs text-muted-foreground italic">{t('write_view_outline_popover_no_chapters')}</p>
+                  <p className="ml-3 text-xs text-muted-foreground italic">{"No chapters yet"}</p>
                 )}
               </div>
             );
           })}
           {actOrder.length === 0 && (
-            <p className="text-sm text-muted-foreground italic">{t('write_view_outline_popover_empty_message')}</p>
+            <p className="text-sm text-muted-foreground italic">{"No story structure yet. Add an act in the Plan tab."}</p>
           )}
         </ScrollArea>
       </PopoverContent>
