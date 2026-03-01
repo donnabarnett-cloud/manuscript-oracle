@@ -1,15 +1,5 @@
 // Document processing utilities for Word and PDF import/export
-import mammoth from 'mammoth';
-import { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel } from 'docx';
-import * as pdfjs from 'pdfjs-dist';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-// Initialize pdfMake with fonts
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+// Uses dynamic imports to avoid blocking initial app load
 
 /**
  * Count words in text
@@ -21,8 +11,6 @@ export function countWords(text) {
 
 /**
  * Collect all scene text from the novel data structure
- * novelData has: actOrder, acts, chapters, scenes
- * scenes have: content (the prose text)
  */
 export function collectNovelText(novelData) {
   const { actOrder = [], acts = {}, chapters = {}, scenes = {} } = novelData;
@@ -47,10 +35,10 @@ export function collectNovelText(novelData) {
 
 /**
  * Import Word document (.docx)
- * Returns { success, text, wordCount, error }
  */
 export async function importWordDocument(file) {
   try {
+    const mammoth = (await import('mammoth')).default;
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
     const text = result.value;
@@ -67,10 +55,11 @@ export async function importWordDocument(file) {
 
 /**
  * Import PDF document
- * Returns { success, text, wordCount, error }
  */
 export async function importPDFDocument(file) {
   try {
+    const pdfjs = await import('pdfjs-dist');
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     let fullText = '';
@@ -93,14 +82,13 @@ export async function importPDFDocument(file) {
 
 /**
  * Export novel as Word document (.docx) with KDP 6x9 formatting
- * novelData: { actOrder, acts, chapters, scenes, name }
  */
 export async function exportAsWordDocument(novelData, novelName) {
   try {
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel } = await import('docx');
     const { actOrder = [], acts = {}, chapters = {}, scenes = {} } = novelData;
     const children = [];
 
-    // Title
     children.push(
       new Paragraph({
         text: novelName || novelData.name || 'Untitled Manuscript',
@@ -109,15 +97,12 @@ export async function exportAsWordDocument(novelData, novelName) {
       })
     );
 
-    actOrder.forEach((actId, actIndex) => {
+    actOrder.forEach((actId) => {
       const act = acts[actId];
       if (!act) return;
-
       (act.chapterOrder || []).forEach((chapterId, chapterIndex) => {
         const chapter = chapters[chapterId];
         if (!chapter) return;
-
-        // Chapter heading
         children.push(
           new Paragraph({
             text: chapter.name || `Chapter ${chapterIndex + 1}`,
@@ -126,8 +111,6 @@ export async function exportAsWordDocument(novelData, novelName) {
             spacing: { before: 480, after: 240 },
           })
         );
-
-        // Scene content
         (chapter.sceneOrder || []).forEach(sceneId => {
           const scene = scenes[sceneId];
           if (!scene || !scene.content) return;
@@ -151,8 +134,8 @@ export async function exportAsWordDocument(novelData, novelName) {
       sections: [{
         properties: {
           page: {
-            width: 8640,   // 6 inches in twips
-            height: 12960, // 9 inches in twips
+            width: 8640,
+            height: 12960,
             margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 },
           },
         },
@@ -174,10 +157,15 @@ export async function exportAsWordDocument(novelData, novelName) {
  */
 export async function exportAsPDF(novelData, novelName) {
   try {
+    const pdfMakeModule = await import('pdfmake/build/pdfmake');
+    const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+    const pdfMake = pdfMakeModule.default || pdfMakeModule;
+    const pdfFonts = pdfFontsModule.default || pdfFontsModule;
+    pdfMake.vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs;
+
     const { actOrder = [], acts = {}, chapters = {}, scenes = {} } = novelData;
     const content = [];
 
-    // Title page
     content.push(
       { text: novelName || novelData.name || 'Untitled Manuscript', fontSize: 24, bold: true, alignment: 'center', margin: [0, 200, 0, 20] },
       { text: '', pageBreak: 'after' }
@@ -186,11 +174,9 @@ export async function exportAsPDF(novelData, novelName) {
     actOrder.forEach((actId) => {
       const act = acts[actId];
       if (!act) return;
-
       (act.chapterOrder || []).forEach((chapterId, chapterIndex) => {
         const chapter = chapters[chapterId];
         if (!chapter) return;
-
         content.push({
           text: chapter.name || `Chapter ${chapterIndex + 1}`,
           fontSize: 18,
@@ -198,7 +184,6 @@ export async function exportAsPDF(novelData, novelName) {
           alignment: 'center',
           margin: [0, 36, 0, 18],
         });
-
         (chapter.sceneOrder || []).forEach(sceneId => {
           const scene = scenes[sceneId];
           if (!scene || !scene.content) return;
@@ -222,7 +207,7 @@ export async function exportAsPDF(novelData, novelName) {
       pageSize: { width: 432, height: 648 },
       pageMargins: [54, 54, 54, 54],
       content,
-      defaultStyle: { font: 'Roboto', fontSize: 11, lineHeight: 1.5 },
+      defaultStyle: { fontSize: 11, lineHeight: 1.5 },
     };
 
     pdfMake.createPdf(docDefinition).download(`${novelName || 'manuscript'}.pdf`);
