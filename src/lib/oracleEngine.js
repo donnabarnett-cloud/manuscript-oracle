@@ -16,6 +16,8 @@ export const getOracleSettings = () => {
     apiKey: firstProfile.apiToken || '',
     defaultModel: firstProfile.modelName || 'arcee-ai/trinity-large-preview',
     temperature: 0.7,
+      };
+  };
   export const betaReaders = [
   { id: 'reader_1', name: 'The Emotional Heart', persona: 'Focuses on character chemistry, emotional stakes, and "the feels".' },
   { id: 'reader_2', name: 'The Plot Hound', persona: 'Obsessed with logic, pacing, and spotting plot holes.' },
