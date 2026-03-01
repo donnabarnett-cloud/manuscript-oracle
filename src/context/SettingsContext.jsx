@@ -176,6 +176,11 @@ const areColorsObjectsEqual = (objSet1, objSet2) => {
 
 const loadSettings = () => {
   try {
+        // Migration: copy settings from old PLOTBUNNI key to new MANUSCRIPT_ORACLE key
+        const oldKey = 'PLOTBUNNI_Settings';
+        if (!localStorage.getItem(SETTINGS_STORAGE_KEY) && localStorage.getItem(oldKey)) {
+                localStorage.setItem(SETTINGS_STORAGE_KEY, localStorage.getItem(oldKey));
+              }
     const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (storedSettings) {
       const parsed = JSON.parse(storedSettings);
