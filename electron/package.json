@@ -1,7 +1,7 @@
 {
-  "name": "plotbunni",
+  "name": "manuscript-oracle",
   "version": "1.1.0",
-  "description": "Plot Bunni",
+  "description": "Manuscript Oracle",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,8 +9,8 @@
     "build:portable": "electron-builder --win portable"
   },
   "build": {
-    "appId": "com.fyrean.plotbunni",
-    "productName": "Plot Bunni",
+    "appId": "com.fyrean.manuscript-oracle",
+    "productName": "Manuscript Oracle",
     "files": [
       "main.js",
       "static/**/*",
