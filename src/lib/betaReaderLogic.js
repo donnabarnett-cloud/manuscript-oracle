@@ -1,9 +1,7 @@
 /**
  * betaReaderLogic.js - AI Beta Reader Personas for Manuscript Oracle
  */
-
-import { generateChatCompletion } from './aiContextUtils';
-import { getFullManuscriptContent } from './oracleEngine';
+import { callOpenRouter, getFullManuscriptContent } from './oracleEngine';
 
 export const personas = [
   { name: 'Chloe', role: 'Plot Architect', focus: 'Pacing and Plot Holes' },
@@ -14,7 +12,7 @@ export const personas = [
 export const getBetaFeedback = async (novelId, personaName) => {
   const manuscript = await getFullManuscriptContent(novelId);
   const persona = personas.find(p => p.name === personaName);
-  
+
   const prompt = `
     You are ${persona.name}, a ${persona.role} beta reader.
     Focus: ${persona.focus}.
@@ -23,7 +21,7 @@ export const getBetaFeedback = async (novelId, personaName) => {
   `;
 
   try {
-    const feedback = await generateChatCompletion([{ role: 'user', content: prompt }]);
+    const feedback = await callOpenRouter(prompt);
     return { personaName, feedback };
   } catch (error) {
     return { personaName, error: error.message };
