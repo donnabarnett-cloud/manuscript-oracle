@@ -454,7 +454,6 @@ const NovelOverviewTab = () => {
                 const oldValue = localStorage.getItem('plotbunni_tutorial_shown');
                 if (oldValue) {
                           localStorage.setItem('MANUSCRIPT_ORACLE_tutorial_shown', oldValue);
-                          tutorialShown = oldValue;
                         }
               }
     if (!tutorialShown) {
