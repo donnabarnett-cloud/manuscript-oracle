@@ -16,10 +16,10 @@ import {
   exportAsPDF,
   countWords,
 } from '../../lib/documentProcessor';
-import { FileText, Upload, Download, FileDown, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { FileText, Upload, Download, FileDown, AlertCircle, CheckCircle, Loader2, PlayCircle } from 'lucide-react';
 
 export const DocumentImportExportModal = ({ isOpen, onOpenChange }) => {
-  const { acts, chapters, scenes, actOrder, currentNovelId, addSceneToChapter, addChapterToAct } = useData();
+  const { acts, chapters, scenes, actOrder, currentNovelId, addSceneToChapter, addChapterToAct, addAct } = useData();
   const [status, setStatus] = useState(null); // { type: 'success'|'error'|'info', message }
   const [loading, setLoading] = useState(false);
   const [importedText, setImportedText] = useState(null);
@@ -65,6 +65,64 @@ export const DocumentImportExportModal = ({ isOpen, onOpenChange }) => {
       }
     } catch (err) {
       setStatus({ type: 'error', message: `Import error: ${err.message}` });
+    }
+    setLoading(false);
+  };
+
+  const handleApplyToNovel = async () => {
+    if (!importedText) return;
+    
+    const confirmApply = window.confirm("This will add the imported text to your novel as a new Act. Continue?");
+    if (!confirmApply) return;
+    
+    setLoading(true);
+    setStatus({ type: 'info', message: 'Applying content to novel...' });
+    
+    try {
+      // Create a new Act for the imported content
+      const newAct = addAct({ name: "Imported Manuscript" });
+      
+      // Basic splitting logic: Split by "Chapter"
+      const chapterPattern = /(?:\n|^)\s*(?:Chapter|CHAPTER)\s+([^\n]+)/i;
+      const rawParts = importedText.split(chapterPattern);
+      
+      if (rawParts.length <= 1) {
+        // No chapters found, just create one chapter and one scene
+        const newChapter = addChapterToAct(newAct.id, { name: "Imported Content" }, { skipDefaultScene: true });
+        addSceneToChapter(newChapter.id, { name: "Full Text", content: importedText });
+      } else {
+        // First part is usually intro text if it exists
+        if (rawParts[0].trim()) {
+           const introChapter = addChapterToAct(newAct.id, { name: "Introduction" }, { skipDefaultScene: true });
+           addSceneToChapter(introChapter.id, { name: "Intro Scene", content: rawParts[0].trim() });
+        }
+        
+        for (let i = 1; i < rawParts.length; i += 2) {
+          const chapterName = `Chapter ${rawParts[i].trim()}`;
+          const chapterContent = rawParts[i+1]?.trim() || "";
+          
+          const newChapter = addChapterToAct(newAct.id, { name: chapterName }, { skipDefaultScene: true });
+          
+          // Split chapter content into scenes if there are scene separators
+          const sceneParts = chapterContent.split(/(?:\n|^)\s*(?:\*\*\*|###|---)\s*(?:\n|$)/);
+          
+          if (sceneParts.length <= 1) {
+            addSceneToChapter(newChapter.id, { name: "Scene 1", content: chapterContent });
+          } else {
+            sceneParts.forEach((content, index) => {
+              if (content.trim()) {
+                addSceneToChapter(newChapter.id, { name: `Scene ${index + 1}`, content: content.trim() });
+              }
+            });
+          }
+        }
+      }
+      
+      setStatus({ type: 'success', message: 'Content successfully applied to novel!' });
+      setImportedText(null); // Clear preview after applying
+    } catch (err) {
+      console.error("Apply error:", err);
+      setStatus({ type: 'error', message: `Apply error: ${err.message}` });
     }
     setLoading(false);
   };
@@ -187,22 +245,27 @@ export const DocumentImportExportModal = ({ isOpen, onOpenChange }) => {
               'bg-blue-500/10 text-blue-700 dark:text-blue-400'
             }`}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin flex-shrink-0 mt-0.5" /> :
-               status.type === 'error' ? <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" /> :
-               <CheckCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />}
+              status.type === 'error' ? <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" /> :
+              <CheckCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />}
               <span>{status.message}</span>
             </div>
           )}
 
           {/* Imported text preview */}
           {importedText && (
-            <div className="flex-1 overflow-hidden flex flex-col gap-1">
-              <h3 className="text-sm font-semibold">Preview (first 2000 characters)</h3>
+            <div className="flex-1 overflow-hidden flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">Preview (first 2000 characters)</h3>
+                <Button size="sm" onClick={handleApplyToNovel} disabled={loading} className="gap-2">
+                  <PlayCircle className="h-4 w-4" />
+                  Apply to Novel
+                </Button>
+              </div>
               <ScrollArea className="flex-1 border rounded p-3 text-sm text-muted-foreground font-mono whitespace-pre-wrap">
                 {importedText.substring(0, 2000)}{importedText.length > 2000 ? '...' : ''}
               </ScrollArea>
               <p className="text-xs text-muted-foreground">
-                Note: Imported text is shown as a preview. To use it in your novel, copy the text you need
-                into your scene editor.
+                Note: Applying will create new chapters and scenes in your novel based on this content.
               </p>
             </div>
           )}
