@@ -1,0 +1,194 @@
+.review-view {
+  padding: 20px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.review-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-buttons button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-buttons button:hover {
+  background: #f5f5f5;
+}
+
+.filter-buttons button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.add-review-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.add-review-form h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.add-review-form input,
+.add-review-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.add-review-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.rating-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.rating-selector label {
+  font-weight: 500;
+}
+
+.rating-selector select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-review-form button {
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-review-form button:hover {
+  background: #218838;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.review-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.review-card.status-pending {
+  border-left: 4px solid #ffc107;
+}
+
+.review-card.status-reviewed {
+  border-left: 4px solid #17a2b8;
+}
+
+.review-card.status-implemented {
+  border-left: 4px solid #28a745;
+}
+
+.review-header-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reviewer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reviewer-info strong {
+  color: #333;
+}
+
+.rating {
+  color: #ffc107;
+  font-size: 14px;
+}
+
+.review-date {
+  color: #666;
+  font-size: 14px;
+}
+
+.review-feedback {
+  margin: 15px 0;
+  line-height: 1.6;
+  color: #444;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.review-actions select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.review-actions button {
+  background: #dc3545;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.review-actions button:hover {
+  background: #c82333;
+}
