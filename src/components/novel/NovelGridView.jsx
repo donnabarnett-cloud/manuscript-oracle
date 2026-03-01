@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useTranslation } from 'react-i18next';
 import NovelCard from './NovelCard';
 import AddNewNovelCard from './AddNewNovelCard';
 import CreateNovelFormModal from './CreateNovelFormModal';
 import SettingsView from '@/components/settings/SettingsView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Rabbit, Sun, Moon, UploadCloud, Settings, Languages } from 'lucide-react'; // Add Languages icon
+import { Search, Rabbit, Sun, Moon, UploadCloud, Settings, Languages } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -33,14 +33,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Import DropdownMenu components
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as idb from '@/lib/indexedDb';
-import { getDefaultConceptTemplates } from '@/data/models';
+import { getDefaultConceptTemplates, createAct, createChapter, createScene } from '@/data/models';
+import { importWordDocument, importPDFDocument } from '@/lib/documentProcessor';
 
 const NovelGridView = () => {
-  const { t, i18n } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation();
   const [novels, setNovels] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -52,15 +53,12 @@ const NovelGridView = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingNovel, setEditingNovel] = useState(null);
   const [editNovelName, setEditNovelName] = useState('');
-
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [novelToDelete, setNovelToDelete] = useState(null);
-
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef(null);
 
-  // Updated to use setLanguage from context
   const { themeMode, activeOsTheme, setThemeMode, language: currentLanguage, setLanguage } = useSettings();
   const effectiveTheme = themeMode === 'system' ? activeOsTheme : themeMode;
 
@@ -69,9 +67,8 @@ const NovelGridView = () => {
     setThemeMode(nextTheme);
   };
 
-  // changeLanguage function now uses setLanguage from context
   const changeLanguage = (lng) => {
-    setLanguage(lng); // This will also call i18n.changeLanguage internally via context
+    setLanguage(lng);
   };
 
   const fetchNovels = useCallback(async () => {
@@ -97,7 +94,7 @@ const NovelGridView = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [t]); // Add t to dependencies
+  }, [t]);
 
   useEffect(() => {
     fetchNovels();
@@ -172,7 +169,7 @@ const NovelGridView = () => {
       setError(t('error_delete_novel'));
     }
   };
-  
+
   const openDeleteAlert = (novelId) => {
     setNovelToDelete(novelId);
     setIsDeleteAlertOpen(true);
@@ -186,7 +183,6 @@ const NovelGridView = () => {
 
   const handleEditNovel = async () => {
     if (!editingNovel || !editNovelName.trim()) {
-      // Using alert for simplicity as in original, can be changed to toast
       alert(t('novel_name_required_desc')); 
       return;
     }
@@ -207,36 +203,79 @@ const NovelGridView = () => {
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      if (file.type !== 'application/json') {
-        toast({
-          title: t('invalid_file_type_title'),
-          description: t('invalid_file_type_desc'),
-          variant: "destructive",
-        });
-        return;
-      }
-      try {
+    if (!file) return;
+
+    setIsLoading(true);
+    try {
+      if (file.name.endsWith('.json')) {
         const fileContent = await file.text();
         const parsedData = JSON.parse(fileContent);
         await handleImportNovel(parsedData);
-      } catch (err) {
-        console.error("Error reading or parsing file:", err);
+      } else if (file.name.endsWith('.docx') || file.name.endsWith('.pdf')) {
+        let result;
+        if (file.name.endsWith('.docx')) {
+          result = await importWordDocument(file);
+        } else {
+          result = await importPDFDocument(file);
+        }
+
+        if (result.success) {
+          const novelName = file.name.replace(/\.[^/.]+$/, "");
+          const newNovelMeta = await idb.createNovel(novelName);
+          
+          const firstAct = createAct({ name: "Imported Manuscript" });
+          const firstChapter = createChapter({ name: "Imported Content" });
+          const firstScene = createScene({ name: "Full Text", content: result.text });
+          
+          const fullNovelData = {
+            id: newNovelMeta.id,
+            authorName: '',
+            synopsis: `Imported from ${file.name}`,
+            coverImage: null,
+            concepts: [],
+            acts: { [firstAct.id]: { ...firstAct, chapterOrder: [firstChapter.id] } },
+            chapters: { [firstChapter.id]: { ...firstChapter, sceneOrder: [firstScene.id] } },
+            scenes: { [firstScene.id]: firstScene },
+            actOrder: [firstAct.id],
+            conceptTemplates: getDefaultConceptTemplates(),
+            creation_date: Date.now(),
+            last_modified_date: Date.now(),
+          };
+          
+          await idb.saveNovelData(newNovelMeta.id, fullNovelData);
+          toast({
+            title: t('import_successful_title'),
+            description: t('import_successful_desc', { novelName }),
+          });
+          await fetchNovels();
+          navigate(`/novel/${newNovelMeta.id}`);
+        } else {
+          throw new Error(result.error);
+        }
+      } else {
         toast({
-          title: t('import_error_title'),
-          description: t('import_error_parse_desc'),
+          title: t('invalid_file_type_title'),
+          description: "Unsupported file type. Please use .json, .docx, or .pdf",
           variant: "destructive",
         });
-      } finally {
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+      }
+    } catch (err) {
+      console.error("Error reading or parsing file:", err);
+      toast({
+        title: t('import_error_title'),
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     }
   };
 
   const handleImportNovel = async (importedData) => {
-    if (!importedData || typeof importedData.novelName !== 'string') {
+    if (!importedData || typeof (importedData.novelName || importedData.name) !== 'string') {
       toast({
         title: t('invalid_json_format_title'),
         description: t('invalid_json_format_desc'),
@@ -245,7 +284,8 @@ const NovelGridView = () => {
       return;
     }
     try {
-      const newNovelMeta = await idb.createNovel(importedData.novelName);
+      const name = importedData.novelName || importedData.name;
+      const newNovelMeta = await idb.createNovel(name);
       const novelDataToSave = {
         authorName: importedData.authorName || '',
         synopsis: importedData.synopsis || '',
@@ -255,11 +295,12 @@ const NovelGridView = () => {
         chapters: importedData.chapters || {},
         scenes: importedData.scenes || {},
         actOrder: importedData.actOrder || [],
+        conceptTemplates: importedData.conceptTemplates || getDefaultConceptTemplates(),
       };
       await idb.saveNovelData(newNovelMeta.id, novelDataToSave);
       toast({
         title: t('import_successful_title'),
-        description: t('import_successful_desc', { novelName: importedData.novelName }),
+        description: t('import_successful_desc', { novelName: name }),
       });
       fetchNovels();
     } catch (err) {
@@ -295,31 +336,20 @@ const NovelGridView = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => changeLanguage('en')} disabled={currentLanguage === 'en'}>
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('es')} disabled={currentLanguage === 'es'}>
-                Espanol
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('cn')} disabled={currentLanguage === 'cn'}>
-                中文
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('de')} disabled={currentLanguage === 'de'}>
-                Deutsch
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('ru')} disabled={currentLanguage === 'ru'}>
-                Pусский
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage('vi')} disabled={currentLanguage === 'vi'}>
-                Tiếng Việt
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('en')} disabled={currentLanguage === 'en'}>English</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('es')} disabled={currentLanguage === 'es'}>Espanol</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('cn')} disabled={currentLanguage === 'cn'}>中文</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('de')} disabled={currentLanguage === 'de'}>Deutsch</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('ru')} disabled={currentLanguage === 'ru'}>Pусский</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage('vi')} disabled={currentLanguage === 'vi'}>Tiếng Việt</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept=".json"
+            accept=".json,.docx,.pdf"
             className="hidden"
           />
           <Button variant="ghost" size="icon" onClick={triggerFileUpload} className="ml-2" title={t('upload_novel_tooltip')}>
@@ -335,50 +365,40 @@ const NovelGridView = () => {
       </header>
 
       <main className="flex-grow p-4 md:p-6">
-        <ScrollArea className="h-[calc(100vh-4rem)] p-4"> {/* Adjusted height if header changes */}
+        <ScrollArea className="h-[calc(100vh-4rem)] p-4">
           <div className="mb-6 flex items-center gap-4">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={t('search_novels_placeholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full"
-            />
+              <Input
+                type="search"
+                placeholder={t('search_novels_placeholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full"
+              />
+            </div>
           </div>
-        </div>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {filteredNovels.map(novel => (
-            <NovelCard
-              key={novel.id}
-              novel={novel}
-              onOpenNovel={() => handleOpenNovel(novel.id)}
-              onDeleteNovel={() => openDeleteAlert(novel.id)}
-              onEditNovel={() => openEditModal(novel)}
-            />
-          ))}
-          <AddNewNovelCard onClick={() => setIsCreateFormModalOpen(true)} />
-        </div>
-
-        {novels.length === 0 && !isLoading && (
-          <div className="text-center py-10 mt-[-2rem]">
-            <p className="text-xl text-muted-foreground">
-              {t('no_novels_yet')}
-            </p>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            {filteredNovels.map(novel => (
+              <NovelCard
+                key={novel.id}
+                novel={novel}
+                onOpenNovel={() => handleOpenNovel(novel.id)}
+                onDeleteNovel={() => openDeleteAlert(novel.id)}
+                onEditNovel={() => openEditModal(novel)}
+              />
+            ))}
+            <AddNewNovelCard onClick={() => setIsCreateFormModalOpen(true)} />
           </div>
-        )}
 
-        {novels.length > 0 && filteredNovels.length === 0 && searchTerm && (
-           <div className="text-center py-10">
-            <p className="text-xl text-muted-foreground">
-              {t('no_novels_match_search', { searchTerm: searchTerm })}
-            </p>
-          </div>
-        )}
+          {novels.length === 0 && !isLoading && (
+            <div className="text-center py-10 mt-[-2rem]">
+              <p className="text-xl text-muted-foreground">{t('no_novels_yet')}</p>
+            </div>
+          )}
         </ScrollArea>
       </main>
 
@@ -399,7 +419,7 @@ const NovelGridView = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -433,9 +453,7 @@ const NovelGridView = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setNovelToDelete(null)}>{t('cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteNovel} className="bg-destructive hover:bg-destructive/90">
-              {t('delete')}
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteNovel} className="bg-destructive hover:bg-destructive/90">{t('delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
