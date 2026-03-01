@@ -134,5 +134,10 @@
   "oracle_model_label": "AI Model",
   "oracle_model_placeholder": "e.g., openai/gpt-4o-mini",
   "oracle_save_button": "Save Oracle Settings",
-  "oracle_settings_saved": "Oracle settings saved!"
+  "oracle_settings_saved": "Oracle settings saved!",
+  "font_settings_label_family": "Font Family",
+  "font_settings_label_base_size_px": "Base Font Size",
+  "font_settings_placeholder_select_font": "Select a font",
+  "font_settings_tooltip_decrease_size": "Decrease font size",
+  "font_settings_tooltip_increase_size": "Increase font size"
 }
