@@ -345,5 +345,27 @@
   "import_outline_modal_error_synopsis_no_scene": "Synopsis found without a parent scene: {{content}}",
   "import_outline_modal_error_indentation": "Invalid indentation on line '{{line}}' (expected multiples of {{count}} spaces).",
   "import_outline_modal_error_no_acts": "No acts found in the outline. Please check your formatting.",
-  "import_outline_modal_error_parsing": "Failed to parse the outline. Please check the formatting."
+  "import_outline_modal_error_parsing": "Failed to parse the outline. Please check the formatting.",
+  "write_view_textarea_placeholder_no_synopsis": "Click to start writing {{sceneName}}...",
+  "write_view_textarea_placeholder_with_synopsis": "{{sceneSynopsis}}\n\nClick to start writing {{sceneName}}...",
+  "write_view_textarea_default_placeholder": "Click here to start writing this scene...",
+  "write_view_editable_title_default_placeholder": "Untitled",
+  "write_view_act_title_placeholder": "Act Title",
+  "write_view_chapter_title_placeholder": "Chapter Title",
+  "write_view_loading_data": "Loading your story...",
+  "write_view_empty_story_title": "Your story is waiting to be written.",
+  "write_view_empty_story_no_acts": "You don't have any acts yet.",
+  "write_view_empty_story_go_to_plan": "Go to the Plan tab to build your structure.",
+  "write_view_chapter_no_scenes_message": "No scenes in this chapter yet. Add one in the Plan tab.",
+  "write_view_act_no_chapters_message": "No chapters in this act yet. Add one in the Plan tab.",
+  "write_view_markdown_help_tooltip": "Markdown formatting help",
+  "write_view_markdown_basics_title": "Markdown Basics",
+  "write_view_markdown_basics_description": "Use Markdown to format your writing.",
+  "write_view_ai_suggestion_tooltip": "Get AI writing suggestion for this scene",
+  "write_view_ai_suggestion_field_label_scene": "Scene Writing Suggestion: {{sceneName}}",
+  "write_view_ai_novel_writer_tooltip": "Open AI Novel Writer",
+  "write_view_ai_context_error_base_data": "Story data not available for AI context.",
+  "write_view_ai_context_error_no_profile": "No active AI profile. Please configure one in Settings.",
+  "write_view_ai_context_error_no_chapter": "Could not find the chapter for this scene."
+}
 }
