@@ -63,7 +63,7 @@ const EditableTitle = ({ initialValue, onSave, placeholder, className, inputClas
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
-                placeholder={placeholder || t('write_view_editable_title_default_placeholder')}
+                placeholder={placeholder || "Untitled"}
                 className={`${inputClassName || className || ''} p-0 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none`}
             />
         );
@@ -77,7 +77,7 @@ const EditableTitle = ({ initialValue, onSave, placeholder, className, inputClas
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsEditing(true); }}}
         >
-            {value || <span className="text-muted-foreground italic">{placeholder || t('write_view_editable_title_default_placeholder')}</span>}
+            {value || <span className="text-muted-foreground italic">{placeholder || "Untitled"}</span>}
         </Component>
     );
 };
@@ -168,12 +168,12 @@ const AutoExpandingTextarea = React.forwardRef(({
 
     const prepareAISceneContext = async () => {
         if (!actOrder || !acts || !chapters || !scenesData || !concepts) {
-            setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: t('write_view_ai_context_error_base_data') });
+            setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: "Story data not available yet." });
             return;
         }
         const activeAIProfile = getActiveProfile();
         if (!activeAIProfile) {
-            setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: t('write_view_ai_context_error_no_profile') });
+            setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: "No AI profile configured. Go to Settings to add one." });
             return;
         }
 
@@ -192,7 +192,7 @@ const AutoExpandingTextarea = React.forwardRef(({
             if (currentChapterId) break;
         }
         if (!currentChapterId) {
-             setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: t('write_view_ai_context_error_no_chapter') });
+             setAiSceneContext({ contextString: "", estimatedTokens: 0, level: 0, error: "Could not find the chapter for this scene." });
             return;
         }
 
@@ -230,7 +230,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                         value={text}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        placeholder={placeholder || t('write_view_textarea_default_placeholder')}
+                        placeholder={placeholder || "Click here to start writing..."}
                         className="w-full resize-none overflow-hidden text-base leading-relaxed focus-visible:ring-1 pr-10 transition-all duration-200 ease-in-out" // Removed pl-10, not needed for top-right button
                     />
                     {/* Markdown Help Popover Button */}
@@ -243,7 +243,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                                 size="icon"
                                 className="absolute top-2 right-2 h-7 w-7 text-slate-500 hover:text-slate-700"
                                 onMouseDown={(e) => e.preventDefault()} 
-                                aria-label={t('write_view_markdown_help_tooltip')}
+                                aria-label={"Formatting help"}
                             >
                                 <TypeIcon className="h-4 w-4" />
                             </Button>
@@ -251,9 +251,9 @@ const AutoExpandingTextarea = React.forwardRef(({
                         <PopoverContent ref={popoverContentRef} className="w-80" side="bottom" align="end"> {/* Added side and align for better positioning */}
                             <div className="grid gap-4">
                                 <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">{t('write_view_markdown_basics_title')}</h4>
+                                    <h4 className="font-medium leading-none">{"Formatting Guide"}</h4>
                                     <p className="text-sm text-muted-foreground">
-                                        {t('write_view_markdown_basics_description')}
+                                        {"Use these shortcuts to style your writing."}
                                     </p>
                                 </div>
                                 <div className="grid gap-2 text-sm">
@@ -278,7 +278,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                             className="absolute bottom-2 right-2 h-7 w-7 text-slate-500 hover:text-slate-700" // Remains bottom-right
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={handleOpenAISuggestionModal}
-                            aria-label={t('write_view_ai_suggestion_tooltip')}
+                            aria-label={"Get AI writing suggestion for this scene"}
                         >
                             <WandSparkles className="h-4 w-4" />
                         </Button>
@@ -290,7 +290,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                     className="prose prose-sm dark:prose-invert max-w-none p-3 min-h-[100px] border border-input rounded-md bg-background hover:bg-muted/50 cursor-text transition-colors text-base leading-relaxed"
                     // Style to mimic textarea, make it clickable
                 >
-                    {text ? <Markdown>{removeIndentation(text)}</Markdown> : <p className="text-muted-foreground italic">{placeholder || t('write_view_textarea_default_placeholder')}</p>}
+                    {text ? <Markdown>{removeIndentation(text)}</Markdown> : <p className="text-muted-foreground italic">{placeholder || "Click here to start writing..."}</p>}
                 </div>
             )}
             {isAISuggestionModalOpen && aiSceneContext && (
@@ -303,7 +303,7 @@ const AutoExpandingTextarea = React.forwardRef(({
                     novelDataTokens={aiSceneContext.estimatedTokens}
                     novelDataLevel={aiSceneContext.level}
                     onAccept={handleAcceptAISuggestion}
-                    fieldLabel={t('write_view_ai_suggestion_field_label_scene', { sceneName: sceneName || t('ai_novel_writer_unnamed_scene')})}
+                    fieldLabel={`Writing Suggestion: ${sceneName || 'Scene'}`, { sceneName: sceneName || "Unnamed Scene"})}
                     taskKeyForProfile={TASK_KEYS.SCENE_TEXT}
                 />
             )}
@@ -418,7 +418,7 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
     if (!acts || !chapters || !scenes || !actOrder) {
         return (
             <div className="flex items-center justify-center h-full text-muted-foreground p-8">
-                {t('write_view_loading_data')}
+                {"Loading your story..."}
             </div>
         );
     }
@@ -426,9 +426,9 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
     if (actOrder.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center">
-                <p className="text-lg mb-2">{t('write_view_empty_story_title')}</p>
-                <p>{t('write_view_empty_story_no_acts')}</p>
-                <p>{t('write_view_empty_story_go_to_plan')}</p>
+                <p className="text-lg mb-2">{"Your story is waiting to be written."}</p>
+                <p>{"You haven't added any acts yet."}</p>
+                <p>{"Go to the Plan tab to build your structure."}</p>
             </div>
         );
     }
@@ -455,7 +455,7 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
                         size="icon"
                         onClick={() => setIsAINovelWriterModalOpen(true)}
                         className="rounded-full shadow-lg hover:bg-primary/10"
-                        title={t('write_view_ai_novel_writer_tooltip')}
+                        title={"AI Novel Writer"}
                     >
                         <Sparkles className="h-5 w-5 text-primary" />
                     </Button>
@@ -469,11 +469,11 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
 
                 return (
                     <section key={actId} aria-labelledby={`act-title-${actId}`} className="space-y-6">
-                        <h2 id={`act-title-${actId}`} className="sr-only">{`Act: ${act.name || t('ai_novel_writer_unnamed_act')}`}</h2>
+                        <h2 id={`act-title-${actId}`} className="sr-only">{`Act: ${act.name || "Unnamed Act"}`}</h2>
                         <EditableTitle
                             initialValue={act.name}
                             onSave={(newName) => handleActTitleChange(actId, newName)}
-                            placeholder={t('write_view_act_title_placeholder')}
+                            placeholder={"Act Title"}
                             className="block text-2xl font-bold tracking-tight text-center w-full"
                             inputClassName="text-2xl font-bold tracking-tight text-center w-full"
                             tag="div" // Renders as a div, styled as h1 effectively
@@ -494,7 +494,7 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
                                         <EditableTitle
                                             initialValue={chapter.name}
                                             onSave={(newName) => handleChapterTitleChange(chapterId, newName)}
-                                            placeholder={t('write_view_chapter_title_placeholder')}
+                                            placeholder={"Chapter Title"}
                                             className="block text-2xl font-semibold w-full"
                                             inputClassName="text-2xl font-semibold w-full"
                                             tag="h3" // Renders as h3
@@ -505,10 +505,9 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
                                             const scene = scenes[sceneId];
                                             if (!scene) return null;
                                             
-                                            const scenePlaceholder = scene.synopsis 
-                                                ? t('write_view_textarea_placeholder_with_synopsis', { sceneName: scene.name || t('ai_novel_writer_unnamed_scene'), sceneSynopsis: scene.synopsis })
-                                                : t('write_view_textarea_placeholder_no_synopsis', { sceneName: scene.name || t('ai_novel_writer_unnamed_scene') });
-
+                                            const scenePlaceholder = scene.synopsis
+                                            ? `${scene.synopsis}\n\nClick to start writing...`
+                                            : `Click to start writing${scene.name ? ` — ${scene.name}` : ''}...`
                                             return (
                                                 <article key={sceneId} aria-labelledby={`scene-heading-${sceneId}`}>
                                                     {/* Scene name can be displayed as non-editable heading if desired - REMOVED based on feedback */}
@@ -546,14 +545,14 @@ const WriteView = ({ targetChapterId, targetSceneId }) => {
                                             );
                                         })}
                                         {(!chapter.sceneOrder || chapter.sceneOrder.length === 0) && (
-                                            <p className="text-sm text-muted-foreground">{t('write_view_chapter_no_scenes_message')}</p>
+                                            <p className="text-sm text-muted-foreground">{"No scenes yet — add one in the Plan tab."}</p>
                                         )}
                                     </CardContent>
                                 </Card>
                             );
                         })}
                         {(!act.chapterOrder || act.chapterOrder.length === 0) && (
-                            <p className="text-sm text-muted-foreground ml-4">{t('write_view_act_no_chapters_message')}</p>
+                            <p className="text-sm text-muted-foreground ml-4">{"No chapters yet — add one in the Plan tab."}</p>
                         )}
                     </section>
                 );
