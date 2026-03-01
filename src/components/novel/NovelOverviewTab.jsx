@@ -448,10 +448,18 @@ const NovelOverviewTab = () => {
     setTourSteps(steps);
 
     // Check for first run
-    const tutorialShown = localStorage.getItem('plotbunni_tutorial_shown');
+    const tutorialShown = localStorage.getItem('MANUSCRIPT_ORACLE_tutorial_shown');
+        // Migration: check for old plotbunni key
+        if (!tutorialShown) {
+                const oldValue = localStorage.getItem('plotbunni_tutorial_shown');
+                if (oldValue) {
+                          localStorage.setItem('MANUSCRIPT_ORACLE_tutorial_shown', oldValue);
+                          tutorialShown = oldValue;
+                        }
+              }
     if (!tutorialShown) {
       setRunTour(true);
-      localStorage.setItem('plotbunni_tutorial_shown', 'true');
+      localStorage.setItem('MANUSCRIPT_ORACLE_tutorial_shown', 'true');
     }
   }, [novelId]); // Re-run if novelId changes, also runs on mount
 
