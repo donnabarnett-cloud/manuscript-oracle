@@ -1,7 +1,7 @@
 // src/i18n.js
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+// import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Import translation files (example for English and Spanish)
 // These files will be created in the next steps.
@@ -36,22 +36,23 @@ const resources = {
 };
 
 i18n
-  .use(LanguageDetector) // Detect user language
+  //   .use(LanguageDetector) // Detect user language
   .use(initReactI18next) // Pass i18n to react-i18next
   .init({
     resources,
-    fallbackLng: 'en', // Fallback language if user language is not available
+        fallbackLng: 'en-GB', // Force UK English
     debug: true, // Set to false in production
 
     interpolation: {
       escapeValue: false, // React already escapes by default
     },
 
-    // Options for LanguageDetector
-    detection: {
-      order: ['navigator', 'localStorage', 'cookie'],
-      caches: ['localStorage'],
-    },
+    //     // Options for LanguageDetector
+        // detection: {
+          // order: ['navigator', 'localStorage', 'cookie'],
+        // lng: 'en-GB', // Force UK English, no language detection
+          // caches: ['localStorage'],
+        // },
   });
 
 export default i18n;
