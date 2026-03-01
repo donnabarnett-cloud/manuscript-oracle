@@ -29,9 +29,7 @@ const NovelOutlinePopover = ({
         if (!storedValue) {
                 const oldValue = localStorage.getItem('plotbunni_writeview_showAddButtons');
                 if (oldValue) {
-                          localStorage.setItem('MANUSCRIPT_ORACLE_writeview_showAddButtons', oldValue);
-                          storedValue = oldValue;
-                        }
+                          localStorage.setItem('MANUSCRIPT_ORACLE_writeview_showAddButtons', oldValue);                        }
               }return storedValue ? JSON.parse(storedValue) : false;
   });
   const [showReorderControls, setShowReorderControls] = useState(false);
