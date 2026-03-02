@@ -139,7 +139,7 @@ export async function callOpenRouter(prompt, settings) {
     })
   });
   const data = await response.json();
-  return data.choices[0].message.content;
+  return if (!data || !data.choices || !data.choices[0]) {     throw new Error('Invalid API response: ' + JSON.stringify(data));   }   return data.choices[0].message.content;
 }
 
 function parseOracleResponse(response) {
