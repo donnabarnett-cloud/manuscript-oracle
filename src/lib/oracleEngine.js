@@ -16,9 +16,10 @@ export const getOracleSettings = () => {
     apiKey: firstProfile.apiToken || '',
     defaultModel: firstProfile.modelName || 'arcee-ai/trinity-large-preview',
     temperature: 0.7,
-      };
   };
-  export const betaReaders = [
+};
+
+export const betaReaders = [
   { id: 'reader_1', name: 'The Emotional Heart', persona: 'Focuses on character chemistry, emotional stakes, and "the feels".' },
   { id: 'reader_2', name: 'The Plot Hound', persona: 'Obsessed with logic, pacing, and spotting plot holes.' },
   { id: 'reader_3', name: 'The Style Critic', persona: 'Focuses on prose quality, metaphors, and flow.' }
@@ -81,10 +82,8 @@ export async function runFullOracleAnalysis(manuscript) {
   const globalPrompt = `You are a Lead Editor at a Major Publishing House.
 Analyze this full manuscript summary.
 Identify plot contradictions, character arc drifts, and pacing flatlines.
-
 MANUSCRIPT SUMMARY:
 ${summaries.join('\n\n')}
-
 Respond in JSON format with specific 'issues' and 'suggestedFixes'.`;
   const response = await callOpenRouter(globalPrompt, settings);
   return parseOracleResponse(response);
@@ -101,10 +100,8 @@ export async function analyzeManuscriptHealth(novelId) {
   }
   const prompt = `You are a professional manuscript editor.
 Analyze the following manuscript excerpt for health issues:
-
 MANUSCRIPT (first 3000 chars):
 ${manuscript.substring(0, 3000)}
-
 Respond ONLY with JSON:
 {"criticalIssues": 0, "warnings": [], "suggestions": []}`;
   try {
@@ -127,21 +124,32 @@ async function compressChapter(chapter, settings) {
 
 export async function callOpenRouter(prompt, settings) {
   const s = settings || getOracleSettings();
+  if (!s.apiKey) {
+    throw new Error('No API key configured. Please add your OpenRouter API key in Settings.');
+  }
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${s.apiKey}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'HTTP-Referer': window.location.origin,
+      'X-Title': 'Manuscript Oracle'
     },
     body: JSON.stringify({
       model: s.defaultModel,
       messages: [{ role: 'user', content: prompt }]
     })
   });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API request failed (${response.status}): ${errorText}`);
+  }
   const data = await response.json();
-  if (!data || !data.choices || !data.choices[0]) {     throw new Error('Invalid API response: ' + JSON.stringify(data));   }   return data.choices[0].message.content;
-}
+  if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+    throw new Error('Invalid API response: ' + JSON.stringify(data));
+  }
   return data.choices[0].message.content;
+}
 
 function parseOracleResponse(response) {
   try {
