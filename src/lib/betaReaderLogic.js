@@ -11,19 +11,45 @@ export const personas = [
 
 export const getBetaFeedback = async (novelId, personaName) => {
   const manuscript = await getFullManuscriptContent(novelId);
-  const persona = personas.find(p => p.name === personaName);
 
-  const prompt = `
-    You are ${persona.name}, a ${persona.role} beta reader.
-    Focus: ${persona.focus}.
-    Manuscript: ${manuscript}
-    Task: Provide high-level feedback.
-  `;
+  if (!manuscript || manuscript.trim().length === 0) {
+    return {
+      personaName,
+      feedback: null,
+      error: 'No manuscript content found. Please add content to your scenes before requesting beta feedback.'
+    };
+  }
+
+  const persona = personas.find(p => p.name === personaName);
+  if (!persona) {
+    return { personaName, feedback: null, error: `Unknown persona: ${personaName}` };
+  }
+
+  // Truncate to ~6000 chars to stay within token limits
+  const excerpt = manuscript.substring(0, 6000);
+  const isTruncated = manuscript.length > 6000;
+
+  const prompt = `You are ${persona.name}, a ${persona.role} beta reader.
+Focus area: ${persona.focus}.
+
+Please read the following manuscript excerpt and provide detailed, constructive beta reader feedback from your unique perspective.
+${isTruncated ? '(Note: This is an excerpt of a longer manuscript.)' : ''}
+
+MANUSCRIPT:
+${excerpt}
+
+Provide your feedback covering:
+1. Your overall impression
+2. Specific strengths you noticed
+3. Areas that need improvement (with examples from the text)
+4. Actionable suggestions for the author
+
+Write as ${persona.name} would speak - with your specific personality and focus on ${persona.focus}.`;
 
   try {
     const feedback = await callOpenRouter(prompt);
-    return { personaName, feedback };
+    return { personaName, feedback, error: null };
   } catch (error) {
-    return { personaName, error: error.message };
+    return { personaName, feedback: null, error: error.message };
   }
 };
