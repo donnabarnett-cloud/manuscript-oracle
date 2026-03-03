@@ -16,6 +16,7 @@ import { AISuggestionModal } from '../ai/AISuggestionModal';
 import { ExportModal } from './ExportModal';
 import { useSettings } from '../../context/SettingsContext';
 import { generateContextWithRetry } from '../../lib/aiContextUtils'; // Import generateContextWithRetry
+import { countWords } from '../../lib/aiApi';
 
 
 const NovelOverviewTab = () => {
@@ -619,6 +620,32 @@ const NovelOverviewTab = () => {
             <HelpCircle className="h-5 w-5" />
           </Button>
         </CardHeader>
+                {/* Word Count Progress Bar */}
+        {(() => {
+          const totalWords = scenes ? Object.values(scenes).reduce((sum, s) => {
+            const text = s?.content || '';
+            return sum + (text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0);
+          }, 0) : 0;
+          const TARGET = 95000;
+          const pct = Math.min(100, Math.round((totalWords / TARGET) * 100));
+          return (
+            <div className="mt-4 p-3 bg-muted/40 rounded-lg border">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm font-medium">Manuscript Progress</span>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {totalWords.toLocaleString()} / {TARGET.toLocaleString()} words
+                </span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div
+                  className="bg-primary rounded-full h-2 transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{pct}% complete</p>
+            </div>
+          );
+        })()}
         <CardContent className="space-y-6">
           <div className="space-y-2">
           <Label htmlFor="novelName">{t('novel_overview_label_novel_name')}</Label>
