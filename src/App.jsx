@@ -11,14 +11,18 @@ import NovelOverviewTab from '@/components/novel/NovelOverviewTab.jsx';
 import PlanView from '@/components/plan/PlanView.jsx';
 import SettingsView from '@/components/settings/SettingsView.jsx';
 import WriteView from '@/components/write/WriteView.jsx';
+import ChatView from '@/components/chat/ChatView.jsx';
+import CodexView from '@/components/codex/CodexView.jsx';
+import ReviewView from '@/components/review/ReviewView.jsx';
 import { Link } from 'react-router-dom';
-import { PanelLeftClose, PanelLeftOpen, Rabbit, Home, Clipboard, Edit, Settings, BookOpen, Lightbulb, Sun, Moon, Text, Sparkles, Users, FileText } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Rabbit, Home, Clipboard, Edit, Settings, BookOpen, Lightbulb, Sun, Moon, Text, Sparkles, Users, FileText, MessageCircle, BookMarked, CheckCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import FontSettingsControl from '@/components/settings/FontSettingsControl';
 import { BetaReaderModal } from '@/components/ai/BetaReaderModal';
 import { OracleAnalysisModal } from '@/components/ai/OracleAnalysisModal';
 import { DocumentImportExportModal } from '@/components/ai/DocumentImportExportModal';
+
 function App({ novelId }) {
   const { t } = useTranslation();
   const { isDataLoaded, currentNovelId } = useData();
@@ -80,6 +84,9 @@ function App({ novelId }) {
       case "write": return <WriteView targetChapterId={targetChapterId} targetSceneId={targetSceneId} />;
       case "plan": return <PlanView onSwitchToWriteTab={handleSwitchToWriteTab} novelId={novelId} />;
       case "settings": return <SettingsView />;
+      case "chat": return <ChatView novelId={novelId} />;
+      case "codex": return <CodexView novelId={novelId} />;
+      case "review": return <ReviewView novelId={novelId} />;
       default: return <PlanView onSwitchToWriteTab={handleSwitchToWriteTab} novelId={novelId} />;
     }
   };
@@ -108,6 +115,18 @@ function App({ novelId }) {
               <TabsTrigger value="write" className="px-4 py-2">
                 <Edit className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">{t('novel_editor_write_tab')}</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="px-4 py-2">
+                <MessageCircle className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="codex" className="px-4 py-2">
+                <BookMarked className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Codex</span>
+              </TabsTrigger>
+              <TabsTrigger value="review" className="px-4 py-2">
+                <CheckCircle className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Review</span>
               </TabsTrigger>
               <TabsTrigger value="settings" className="px-4 py-2">
                 <Settings className="h-4 w-4 md:mr-2" />
